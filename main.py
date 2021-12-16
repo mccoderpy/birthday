@@ -5,15 +5,15 @@ async def birthday(ctx, Day, Month):
     data=json.load(f)
   if ist_bereits_eingetragen(ctx.author.id) != -1:
     embed=discord.Embed(title="Oh, du hast bereits deinen Geburtstag eingetragen.",color=0x18cdca)
-    await ctx.send(embed=embed, hidden=True)
+    await ctx.send(embed=embed)
     return
   if int(Day)>=31:
     embed=discord.Embed(title="Diesen Tag gibt es leider nicht",color=0x18cdca)
-    await ctx.send(embed=embed, hidden=True)
+    await ctx.send(embed=embed)
     return
   if int(Month)>=12:
     embed=discord.Embed(title="Diesen Monat gibt es leider nicht",color=0x18cdca)
-    await ctx.send(embed=embed, hidden=True)
+    await ctx.send(embed=embed)
   with open('birthday.json') as f:
     data = json.load(f)
   if int(Month)==1:
