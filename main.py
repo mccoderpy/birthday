@@ -11,7 +11,8 @@ from discord.ext import commands
 
 intents = discord.Intents.default()
 intents.members = True # You need to enable them in the developer-portal
-bot = commands.Bot(command_prefix=commands.when_mentioned_or('!'), intents=)
+
+bot = commands.Bot(command_prefix=commands.when_mentioned_or('!'), intents=intents)
 
 TOKEN = ''  # The Bot-Token
 
@@ -45,7 +46,7 @@ months = {
     '10': 'October',
     '11': 'November',
     '12': 'December'
-}  # the name of the months that should used
+}  # the name of the months that should be used
 
 
 @bot.event
@@ -76,17 +77,20 @@ async def on_raw_message_delete(payload: discord.RawMessageDeleteEvent):
 async def on_member_remove(member: discord.Member):
     with open('./birthdays.json') as fp:
         data = json.load(fp)
-
+    
     try:
-        data[str(member.guild.id)]['birthdays'].pop(str(member.id))
-    except IndexError:
-        pass
-    else:
-        with open('./birthdays.json', 'w') as fp:
-            json.dump(data, fp, indent=4)
+        await bot.wait_for('member_join', check=lambda m: m.id == member.id, timeout=600)
+    except asyncio.TimeoutError:
+      try:
+          data[str(member.guild.id)]['birthdays'].pop(str(member.id))
+      except KeyError:
+          pass
+      else:
+          with open('./birthdays.json', 'w') as fp:
+              json.dump(data, fp, indent=4)
 
 @bot.event
-async def on_guild_add(guild: discord.Guild):
+async def on_guild_join(guild: discord.Guild):
     with open('./birthdays.json') as fp:
         data = json.load(fp)
 
@@ -104,7 +108,7 @@ async def on_guild_remove(guild: discord.Guild):
         data = json.load(fp)
 
     try:
-        await bot.wait_for('guild_add', check=lambda g: g.id == guild.id, timeout=600)
+        await bot.wait_for('guild_join', check=lambda g: g.id == guild.id, timeout=600)
     except asyncio.TimeoutError:
         data.pop(str(guild.id))
         with open('./birthdays.json', 'w') as fp:
